@@ -1,0 +1,1 @@
+mpiexec -n 4 -host localhost python3 src/main.py 

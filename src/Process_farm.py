@@ -10,16 +10,23 @@ class Process_farm:
         self.rank = self.comm.Get_rank()
         self.status = MPI.Status()
 
-    def run(self, hash_to_crack, hash_method, compute_function, scope, granulation):
+    def run(self, 
+            hash_to_crack, 
+            hash_method, 
+            compute_function, 
+            scope, 
+            granulation):
+
         if self.rank == 0:   
-            partition_array = Process_farm.create_partition_array(scope + 1, granulation -1 )
+            partition_array = Process_farm.create_partition_array(scope + 1, granulation)
+            print(partition_array)
             result = self.master(partition_array , granulation)
             return result
         else:
             self.slave(compute_function, hash_to_crack, hash_method)
 
-    def master(self,partition_array, granulation):
-        work = granulation - 1
+    def master(self, partition_array, granulation):
+        work = granulation
         result = [0]
 
         # send first jobs 
@@ -29,15 +36,13 @@ class Process_farm:
 
             work -= 1
 
-
         while work:
             work -= 1
             data_from_slave = self.comm.recv(source=MPI.ANY_SOURCE, status=self.status)
-
-            if data_from_slave[0] == 1:
+            if len(data_from_slave) == 2:
                 result = data_from_slave
 
-            if not result[0] == 1:
+            if not len(data_from_slave) == 1:
                 data = partition_array[ proc ], partition_array[ proc + 1]
             else:
                 data = -101
@@ -48,8 +53,10 @@ class Process_farm:
 
         # recv rest data from slaves
         for proc in range(1,self.size):
-            result = self.comm.recv(source=MPI.ANY_SOURCE)
-            # print(proc)
+            data_from_slave = self.comm.recv(source=MPI.ANY_SOURCE)
+            # print(data_from_slave)
+            if len(data_from_slave) == 2:
+                result = data_from_slave
 
         # end all slaves
         for proc in range(1,self.size):
@@ -62,12 +69,10 @@ class Process_farm:
     def slave(self, function, hash_to_crack, hash_method):
         while True:
             data = self.comm.recv(source=0)
-            # print(data)
             if data == -1:
                 exit()
             if data == -101: # empty run 
-                data = 0
-                # print(data,self.rank)
+                data = [0]
             else:
                 data = function(hash_to_crack, data[0], data[1] - 1, hash_method)
             
@@ -83,7 +88,7 @@ class Process_farm:
             granulation = 1
 
         num_of_ele_in_one_part = (scope - begin_at) // granulation
-        for i in range(granulation + 1):
+        for i in range(granulation):
             partition_array.append(begin_at)
             begin_at += num_of_ele_in_one_part
 
