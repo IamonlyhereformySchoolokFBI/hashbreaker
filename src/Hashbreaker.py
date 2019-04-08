@@ -91,9 +91,3 @@ class Hashbreaker:
         str = hash_method(str.encode()).hexdigest()
 
         return str
-
-if __name__ == '__main__':
-    md5 = Hashbreaker(2)
-    x = md5.create_hash_from_str(hashlib.md5,'bob')
-    res = md5.crack_hash_from_range(x,1,100000,hashlib.md5)
-    print(res)

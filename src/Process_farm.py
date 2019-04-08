@@ -1,5 +1,7 @@
+import os
 from time import sleep
 from mpi4py import MPI
+from datetime import datetime
 
 
 class Process_farm:
@@ -95,3 +97,24 @@ class Process_farm:
         partition_array.append(scope)
 
         return partition_array
+
+    def save_to_file(self, *args):
+        if self.rank == 0:
+            if not os.path.exists('results'):
+                os.makedirs('results')
+
+            result_filename = 'hash_' + datetime.now().strftime('%Y%m%d_%H%M%S')
+            result_filename = 'results/' + result_filename + '.txt'
+
+            result_file = open(result_filename, 'w')
+            result_file.write('Computation on {} processors with granulation: {}.\n'.format(self.size, args[0]))
+            result_file.write('Time = '+ args[1]+' [sec].\n')
+
+            if len(args[-1]) == 1:
+                result_file.write('Do NOT found match password\n.')
+            else:
+                result_file.write('Found password with hash: ' + args[-1][1] + '\n' + 'Your password is: ' + args[-1][0])
+
+            result_file.close()
+
+        return result_filename
