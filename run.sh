@@ -19,9 +19,9 @@ else
 	read -p 'Granulation: ' granulation
 
 	if [[ $choice -eq 1 ]]; then
-		trigger='-hash'
-	else
 		trigger='-word'
+	else
+		trigger='-hash'
 	fi
 
 	dict_number=0

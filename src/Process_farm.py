@@ -21,7 +21,6 @@ class Process_farm:
 
         if self.rank == 0:   
             partition_array = Process_farm.create_partition_array(scope + 1, granulation)
-            print(partition_array)
             result = self.master(partition_array , granulation)
             return result
         else:
@@ -41,7 +40,7 @@ class Process_farm:
         while work:
             work -= 1
             data_from_slave = self.comm.recv(source=MPI.ANY_SOURCE, status=self.status)
-            if len(data_from_slave) == 2:
+            if len(data_from_slave) == 3:
                 result = data_from_slave
 
             if not len(data_from_slave) == 1:
@@ -57,7 +56,7 @@ class Process_farm:
         for proc in range(1,self.size):
             data_from_slave = self.comm.recv(source=MPI.ANY_SOURCE)
             # print(data_from_slave)
-            if len(data_from_slave) == 2:
+            if len(data_from_slave) == 3:
                 result = data_from_slave
 
         # end all slaves
@@ -77,7 +76,8 @@ class Process_farm:
                 data = [0]
             else:
                 data = function(hash_to_crack, data[0], data[1] - 1, hash_method)
-            
+                if len(data) != 1:
+                    data.append(MPI.Get_processor_name())
             self.comm.send(data, dest = 0)
 
 
@@ -113,8 +113,7 @@ class Process_farm:
             if len(args[-1]) == 1:
                 result_file.write('Do NOT found match password\n.')
             else:
-                result_file.write('Found password with hash: ' + args[-1][1] + '\n' + 'Your password is: ' + args[-1][0])
-
+                result_file.write('Found password on host: \''+args[-1][2] +'\' with hash: ' + args[-1][1] + '\n' + 'Your password is: ' + args[-1][0])
             result_file.close()
 
         return result_filename

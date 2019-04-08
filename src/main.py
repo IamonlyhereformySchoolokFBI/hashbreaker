@@ -26,7 +26,6 @@ if __name__ == '__main__':
         hash_to_crack = string_pass
 
     time.start()
-
     res = ptp.run(hash_to_crack, hashlib.md5, hbr.crack_hash_from_range, hbr.get_number_of_combinations(3), granulation)
 
     time.stop()
@@ -37,7 +36,7 @@ if __name__ == '__main__':
     if len(res) == 1:
         print('Do NOT found match password')
     else:
-        print('Found password with hash: ' + res[1] + '\n' + 'Your password is: ' + res[0])
+        print('Found password on host: \'' + res[2] + '\' with hash: ' + res[1] + '\n' + 'Your password is: ' + res[0])
 
     print('\n' + 'Time = ' + time_as_str + '[sec].')
     print('Result save into the file: ' + result_filename )
