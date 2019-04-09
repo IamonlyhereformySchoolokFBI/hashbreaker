@@ -1,13 +1,15 @@
-# #!/bin/bash
+#!/bin/bash
+
+flag_with_hostname='-f hostfile'
 
 if [[ $# -eq 5 ]] ; then
 
 	if [[ $5 -lt $1 ]]; then
 		printf 'Cannot pass granulation less than number of proc!\n'
 		printf 'Set: granulation = number of proc.\n------------\n'
-		mpiexec -n $1 -host localhost python3 src/main.py $2 $3 $4 $1 
+		mpiexec -n $1 $flag_with_hostname python3 src/main.py $2 $3 $4 $1 
 	else
-		mpiexec -n $1 -host localhost python3 src/main.py $2 $3 $4 $5 
+		mpiexec -n $1 $flag_with_hostname python3 src/main.py $2 $3 $4 $5 
 		
 	fi
 else
@@ -59,8 +61,8 @@ else
 	if [[ $granulation -lt $proc ]]; then
 		printf 'Cannot pass granulation less than number of proc!\n'
 		printf 'Set: granulation = number of proc.\n------------\n'
-		mpiexec -n $proc -host localhost python3 src/main.py $trigger $string $dict_number $proc
+		mpiexec -n $proc $flag_with_hostname python3 src/main.py $trigger $string $dict_number $proc
 	else
-		mpiexec -n $proc -host localhost python3 src/main.py $trigger $string $dict_number $granulation
+		mpiexec -n $proc $flag_with_hostname python3 src/main.py $trigger $string $dict_number $granulation
 	fi
 fi
